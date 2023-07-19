@@ -48,5 +48,11 @@ class Test_Line:
         xvd = line.get_xvd()
         assert(xvd[0, 0] == approx(1.0))
         
+    def test_get_distance(self):
+        p0 = np.array([0, 0, 0]).reshape(-1, 1)
+        p1 = np.array([1, 1, 1]).reshape(-1, 1)
+        line = Line(p0, p1)
+        
+        
         
         

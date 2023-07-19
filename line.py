@@ -25,6 +25,8 @@ class Line:
         return self.nc
     def get_ds(self):
         return self.ds
+    def get_t(self):
+        return self.t
     
     def get_length(self):
         return self.__compute_length()
@@ -32,6 +34,10 @@ class Line:
         return self.__compute_xv()
     def get_xvd(self):
         return self.__compute_xpvd()
+    def get_distance(self, xv):
+        s = np.linalg.norm(xv.reshape(-1, 1) - self.get_xv(), axis=0)
+        return np.min(s)
+        
     
     
     # private methods
