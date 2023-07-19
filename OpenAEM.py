@@ -66,13 +66,3 @@ class LineVortex:
         """
         dot_xpv = -self.p0 + self.p1
         return np.repeat(dot_xpv, self.n_element + 1, axis=1)
-    
-    
-if __name__ == '__main__':
-    p0 = np.array([0, 0, -1000])
-    p1 = np.array([0, 0,  1000])
-    line_vortex =  LineVortex(p0, p1, n_element=100000)
-    
-    x = np.array([1, 0, 0])
-    uvv = line_vortex.biot_savart(x)
-    print(uvv)
