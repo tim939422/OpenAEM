@@ -28,9 +28,18 @@ class Test_Line:
         xv = Vector(0.2, 0.2, 0.2)
         assert(line.get_distance(xv) == approx(0.0, abs=Test_Line.ABS_EPS))
         
+        # 
         xv = Vector(1.0, 1.0, 0.0)
         smin = line.get_distance(xv)
         assert( smin == approx(np.sqrt(2)/np.sqrt(3)))
+        
+        # horizontal line
+        xv0 = Vector(1, -0.5, 1)
+        xv1 = Vector(1, 0.5, 1)
+        line = Line(xv0, xv1)
+        xv = Vector(1, 0, 1)
+        assert(line.get_distance(xv) == approx(0.0, abs= Test_Line.ABS_EPS))
+        
         
     def test_discretization(self):
         xv0 = Vector(0, 0, 0)

@@ -41,13 +41,13 @@ class Line:
             float: distance
             
         Formulas:
-                     |(x1 - x0) x x|
+                     |(x - x0) x (x - x1)|
         distance = -------------------
                         |x1 - x0|
         see: https://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
         """        
         linev    = self.xv1 - self.xv0
-        cross_product = np.cross(linev, xv, axis=0)
+        cross_product = np.cross(xv - self.xv0, xv - self.xv1, axis=0)
         distance = np.linalg.norm(cross_product)/np.linalg.norm(linev)
         return distance
     def get_length(self):
