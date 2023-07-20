@@ -1,56 +1,47 @@
 import numpy as np
 from scipy import integrate
-
-class Line_Vortex:
-    '''
-    a line vortex consists of one or more curve and each curve must implement
-    following API:
-    1. get_t: discretized parameter t
-    2. get_xv: vector x=x(t) along the curve
-    3. get_xvd: direction vector x'=x'(t) along the curve
-    '''
-
-    def __init__(self):
-        self.curves = []
-        
-    def add_components(self, curve):
-        self.curves.append()
+from line import Line
     
-        
-    @staticmethod
-    def biot_savart(xv, curve):
-        """apply biot savart law to compute induced velocity
-        Compute the following integral
 
-                        --
-                     1 |   s X x'(t) dt
-            u_v(x) = - | --------------
-                     2 |     s^3
-                     --
-        Args:
-            xv (float array): location request
-            curve (curve): a general curve with required API implemented
+def biot_savart(xv, curve: Line, r0 = 0.1):
+    """apply biot savart law to compute induced velocity
+    Compute the following integral
 
-        Returns:
-            float array: induced velocity at xv
-        """        
-        xv   = xv.reshape(-1, 1)
-        xpv  = curve.get_xv()
-        xpvd = curve.get_xvd()
-        t = curve.get_t()
-        
-        sv  = xv - xpv
-        s   = np.linalg.norm(sv, axis=0)
-        return -0.5*integrate.simpson(np.cross(sv, xpvd, axis=0)/s**3, t)
+                    --
+                 1 |   s X x'(t) dt
+        u_v(x) = - | --------------
+                 2 |     s^3
+                 --
+    Args:
+        xv (float ndarray): location request
+        curve (Line): a general curve with required API implemented
+
+    Returns:
+        float array: induced velocity at xv
+    """
+    # if distance <= r0, the line vortex concept is invalid
+    # return zero velocity
+    if curve.get_distance(xv) <= r0:
+        return np.zeros((3, 1))
+    
+    xpv  = curve.get_points()
+    xpvd = curve.get_direction()
+    t = curve.get_t()
+    
+    sv  = xv - xpv
+    s   = np.linalg.norm(sv, axis=0)
+    uvv = -0.5*integrate.simpson(np.cross(sv, xpvd, axis=0)/s**3, t)
+    return uvv.reshape(-1, 1)
     
     
 if __name__ == '__main__':
-    p0 = np.array([0, 0, -50000])
-    p1 = np.array([0, 0, 50000])
+    from vector import Vector
     
-    from line import Line
-    line = Line(p0, p1)
+    xvp0 = Vector(0, 0, -50000)
+    xvp1 = Vector(0, 0,  50000)
+    line = Line(xvp0, xvp1)
+
     
-    xv = np.array([1, 0, 0])
-    uvv = Line_Vortex.biot_savart(xv, line)
+    xv = Vector(0.1, 0, 0)
+    uvv = biot_savart(xv, line)
     print(uvv)
