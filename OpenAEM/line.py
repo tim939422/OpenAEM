@@ -1,5 +1,5 @@
 import numpy as np
-from vector import mirror_Vector
+from OpenAEM.vector import mirror_Vector
 
 class Line:
     '''

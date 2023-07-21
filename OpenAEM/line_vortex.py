@@ -1,6 +1,6 @@
 import numpy as np
 from scipy import integrate
-from line import Line
+from OpenAEM.line import Line
     
 
 def biot_savart(xv, curve: Line, r0 = 0.1):
@@ -38,7 +38,7 @@ def biot_savart(xv, curve: Line, r0 = 0.1):
     
     
 if __name__ == '__main__':
-    from vector import Vector
+    from OpenAEM.vector import Vector
     
     xvp0 = Vector(0, 0, -50000)
     xvp1 = Vector(0, 0,  50000)

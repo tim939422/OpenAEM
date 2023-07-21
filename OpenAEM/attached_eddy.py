@@ -1,8 +1,8 @@
 import numpy as np
 
-from line import Line
-from line_vortex import biot_savart
-from vector import Vector
+from OpenAEM.line import Line
+from OpenAEM.line_vortex import biot_savart
+from OpenAEM.vector import Vector
 
 class Attached_Eddy:
     def __init__(self, curves: np.ndarray[Line, 1]):
