@@ -75,3 +75,24 @@ class Test_Line:
                                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
         assert(line.get_direction() == approx(directions))
+        
+    def test_get_reverse_line(self):
+        xv0 = Vector(0, 0, 0)
+        xv1 = Vector(1, 0, 0)
+        line = Line(xv0, xv1, ds = 0.2)
+        reversed_line = line.reverse_line()
+        directions = np.array([[-1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+                               [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                               [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
+
+        assert(reversed_line.get_direction() == approx(directions))
+        
+    def test_mirror_line(self):
+        xv0 = Vector(0, 0, 1)
+        xv1 = Vector(1, 0, 1)
+        line = Line(xv0, xv1, ds = 0.2)
+        
+        mirror = line.mirror_line()
+        
+        assert(mirror.xv0 == approx(Vector(0, 0, -1)))
+        assert(mirror.xv1 == approx(Vector(1, 0, -1)))

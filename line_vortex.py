@@ -9,7 +9,7 @@ def biot_savart(xv, curve: Line, r0 = 0.1):
 
                     --
                  1 |   s X x'(t) dt
-        u_v(x) = - | --------------
+     u_v(x) = -  - | --------------
                  2 |     s^3
                  --
     Args:
@@ -18,6 +18,9 @@ def biot_savart(xv, curve: Line, r0 = 0.1):
 
     Returns:
         float array: induced velocity at xv
+        
+    Remarks:
+        the circulation has the same direction as the curve
     """
     # if distance <= r0, the line vortex concept is invalid
     # return zero velocity

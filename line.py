@@ -1,5 +1,5 @@
 import numpy as np
-
+from vector import mirror_Vector
 
 class Line:
     '''
@@ -72,6 +72,29 @@ class Line:
     def get_direction(self):
         xvd = -self.xv0 + self.xv1
         return np.repeat(xvd, self.get_npts(), axis=1)
+    
+    def reverse_line(self):
+        return Line(self.xv1, self.xv0, ds=self.__ds)
+    def mirror_line(self):
+        """mirror the line
+                                                     
+                                 x1          
+                             ----            
+                      ------/                
+       x0     -------/                       
+          ---/                               
+                                             
+                                    x-y plane
+------------------------------------------   
+                                             
+         ---\                                
+       x0'   -------\                        
+                     -------\                
+                             ----            
+                                 x1'         
+        """        
+        return Line(mirror_Vector(self.xv0), mirror_Vector(self.xv1), ds=self.__ds)
+        
     
     # wrappers to fetch private attributes
     def get_ndvis(self):
