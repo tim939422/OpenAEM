@@ -10,3 +10,6 @@ An wall turbulence simulator powered by attached eddy model
    ```console
    python -m pip install -e .
    ```
+## TODO
+- [ ] implement 2D poisson sampling on the $x-y$ plane
+- [ ] add support for spline curve
