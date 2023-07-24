@@ -9,7 +9,7 @@ class Test_Line_Vortex:
         L = 1e5
         p0 = OpenAEM.Vector(0, 0, -L/2)
         p1 = OpenAEM.Vector(0, 0, L/2)
-        line = OpenAEM.Line(p0, p1)
+        line = OpenAEM.DLS(p0, p1)
         
         xv = OpenAEM.Vector(1, 0, 0)
         u, v, w = OpenAEM.biot_savart(xv, line)

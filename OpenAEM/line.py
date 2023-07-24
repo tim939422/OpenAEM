@@ -2,110 +2,188 @@ import numpy as np
 from OpenAEM.vector import mirror_Vector
 
 class Line:
-    '''
-    A line parameterized by a 0 <= t <= 1
-
-        xv = (1-t)*xv0 + t*xv1
-        
-    '''
-    def __init__(self, xv0, xv1, ds=0.01):
-        """construct a line object
+    def __init__(self, p0, p1) -> None:
+        """analytical line by two points
 
         Args:
-            xv0 ((3, 1) numpy.ndarray): starting point
-            xv1 ((3, 1) numpy.ndarray): ending point
-            ds (float, optional): request uniform spacing. Defaults to 0.01.
+            p0 (ndarray): (3,)
+            p1 (ndarray): (3,)
         """        
-        self.xv0 = xv0
-        self.xv1 = xv1
+        self.p0 = p0
+        self.p1 = p1
+        self.dir = p1 - p0
         
-        # obtain discretized line
-        length  = self.get_length()
-        
-        self.__ndivs = int(np.ceil(length/ds)) # number of divisions
-        self.__npts  = self.__ndivs + 1 # number of points
-        self.__ds    = length / self.__ndivs # actual spacing
-        
-        # parameters (1, npts)
-        self.__t     = np.linspace(0.0, 1.0, self.__npts).reshape(1, -1)
-        
-        
-    # public methods
-    def get_distance(self, xv):
-        """distance from a point xv to current line
+    
+    def distance2(self, p):
+        """distance from a point p to current line
                 
         Args:
-            xv (array (3, 1)): point
+            p (ndarray): (3,) point
         
         Returns:
             float: distance
             
         Formulas:
-                     |(x - x0) x (x - x1)|
+                     |(p - p0) x (p - p1)|
         distance = -------------------
-                        |x1 - x0|
+                        |p1 - p0|
         see: https://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
         """        
-        linev    = self.xv1 - self.xv0
-        cross_product = np.cross(xv - self.xv0, xv - self.xv1, axis=0)
-        distance = np.linalg.norm(cross_product)/np.linalg.norm(linev)
+        cross_product = np.cross(p - self.p0, p - self.p1)
+        distance = np.linalg.norm(cross_product)/np.linalg.norm(self.dir)
         return distance
+    
+    @staticmethod
+    def intersect(line_1, line_2):
+        """intersection of two lines
+
+        Args:
+            line_1 (Line): line 1
+            line_2 (Line): line 2
+
+        Returns:
+            ndarray: (3,) intersection point
+        """        
+        p0 = line_1.get_p0(); d0 = line_1.get_dir()
+        p1 = line_2.get_p0(); d1 = line_2.get_dir()
+        
+        At = np.vstack((d0, -d1))
+        A  = At.T
+        b  = (p1 - p0).reshape(-1, 1)
+        C = np.matmul(At, A)
+        d = np.matmul(At, b)
+        t, _ = np.linalg.solve(C, d)
+        return p0 + t*d0
+    
+    @staticmethod
+    def mirror_point(p, symmetry_plane='xz'):
+        """mirror a point 
+
+        Args:
+            p (ndarray): (3,)
+            symmetry_plane (str, optional): symmetry. Defaults to 'xz'.
+
+        Returns:
+            ndarray: (3,)
+        """        
+        if symmetry_plane == 'xz':
+            return np.array([p[0], -p[1], p[2]])
+        elif symmetry_plane == 'xy':
+            return np.array([p[0], p[1], -p[2]])
+        elif symmetry_plane == 'yz':
+            return np.array([-p[0], p[1], p[2]])
+        
+    
+    # getter and setter
+    def get_p0(self):
+        """get a point on a line
+
+        Returns:
+            ndarray: (3,) point
+        """        
+        return self.p0
+    
+    def get_p1(self):
+        return self.p1
+    
+    def get_dir(self):
+        """get direction vector of a line
+
+        Returns:
+            ndarray: (3,)
+        """        
+        return self.dir
+
+class DLS(Line):
+    def __init__(self, p0, p1, ds=0.01) -> None:
+        """discretized directed line segment (DLS)
+
+        Args:
+            p0 (ndarray): starting point
+            p1 (ndarray): ending point
+            ds (float, optional): target spacing. Defaults to 0.01.
+        
+        Formulas:
+            p = (1-t)*p0 + t*p1 (0 <= t <= 1)
+        """        
+        super().__init__(p0, p1)
+        
+        # discretize DSL
+        self.length = np.linalg.norm(self.p1 - self.p0)
+        self.n = int(np.ceil(self.length / ds))
+        self.ds = self.length / self.n # actual spacing
+        self.t = 1/self.n*0.5 + np.arange(self.n)*self.ds
+        
+    # public methods
+    def points(self):
+        """sample points along the line (division center)
+
+        Returns:
+            float ndarray: (3, n) array and each column is a point
+        """
+        x = (1 - self.t)*self.p0[0] + self.t*self.p1[0]
+        y = (1 - self.t)*self.p0[1] + self.t*self.p1[1]
+        z = (1 - self.t)*self.p0[2] + self.t*self.p1[2]
+        
+        return np.vstack((x, y, z))
+        
+    
+    def dirs(self):
+        """direction vectors at each division center
+
+        Returns:
+            ndarray: (3, n)
+        """        
+        xdirs = np.ones(self.n)*self.get_dir()[0]
+        ydirs = np.ones(self.n)*self.get_dir()[1]
+        zdirs = np.ones(self.n)*self.get_dir()[2]
+        return np.vstack((xdirs, ydirs, zdirs))
+    
+    def reverse(self):
+        """reverse current DLS
+
+        Returns:
+            DSL: point from p1 to p0
+        """        
+        return DLS(self.p1, self.p0, ds=self.ds)
+    def mirror(self, symmetry_plane='xy'):
+        p0 = Line.mirror_point(self.p0, symmetry_plane=symmetry_plane)
+        p1 = Line.mirror_point(self.p1, symmetry_plane=symmetry_plane)
+        return DLS(p0, p1, ds=self.ds)
+        
+    
+    # wrappers to fetch private attributes
+    def get_n(self):
+        """number of subdivisions
+
+        Returns:
+            int: n
+        """        
+        return self.n
+    def get_ds(self):
+        """actual spacing
+
+        Returns:
+            float: ds
+        """        
+        return self.ds
+    def get_t(self):
+        """discretized parameter t
+
+        Returns:
+            ndarray: (n,)
+        """        
+        return self.t
     def get_length(self):
-        """length of segment from xv0 to xv1
+        """length of DLS
             
         Returns:
             float: length
 
         Formulas:
-            length = || xv1 - xv0 ||
+            length = || p1 - p0 ||
         """        
-        return np.linalg.norm(self.xv1 - self.xv0)
-    
-    def get_points(self):
-        """sample points along the line
-
-        Returns:
-            float ndarray: (3, M) array and each column is a point
-        """        
-        return np.matmul(self.xv0, 1 - self.get_t()) + np.matmul(self.xv1, self.get_t())
-    
-    def get_direction(self):
-        xvd = -self.xv0 + self.xv1
-        return np.repeat(xvd, self.get_npts(), axis=1)
-    
-    def reverse_line(self):
-        return Line(self.xv1, self.xv0, ds=self.__ds)
-    def mirror_line(self):
-        """mirror the line
-                                                     
-                                 x1          
-                             ----            
-                      ------/                
-       x0     -------/                       
-          ---/                               
-                                             
-                                    x-y plane
-------------------------------------------   
-                                             
-         ---\                                
-       x0'   -------\                        
-                     -------\                
-                             ----            
-                                 x1'         
-        """        
-        return Line(mirror_Vector(self.xv0), mirror_Vector(self.xv1), ds=self.__ds)
-        
-    
-    # wrappers to fetch private attributes
-    def get_ndvis(self):
-        return self.__ndivs
-    def get_npts(self):
-        return self.__npts
-    def get_ds(self):
-        return self.__ds
-    def get_t(self):
-        return self.__t
-
+        return self.length
     
 if __name__ == '__main__':
     pass

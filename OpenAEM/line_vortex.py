@@ -1,9 +1,9 @@
 import numpy as np
 from scipy import integrate
-from OpenAEM.line import Line
+from OpenAEM.line import DLS
     
 
-def biot_savart(xv, curve: Line, r0 = 0.1):
+def biot_savart(xv, curve: DLS, r0 = 0.1):
     """apply biot savart law to compute induced velocity
     Compute the following integral
 
@@ -24,27 +24,26 @@ def biot_savart(xv, curve: Line, r0 = 0.1):
     """
     # if distance <= r0, the line vortex concept is invalid
     # return zero velocity
-    if curve.get_distance(xv) <= r0:
+    if curve.distance2(xv) <= r0:
         return np.zeros((3, 1))
     
-    xpv  = curve.get_points()
-    xpvd = curve.get_direction()
+    xpv  = curve.points()
+    xpvd = curve.dirs()
     t = curve.get_t()
     
-    sv  = xv - xpv
+    sv  = xv.reshape(-1, 1) - xpv
     s   = np.linalg.norm(sv, axis=0)
     uvv = -0.5*integrate.simpson(np.cross(sv, xpvd, axis=0)/s**3, t)
     return uvv.reshape(-1, 1)
     
     
 if __name__ == '__main__':
-    from OpenAEM.vector import Vector
     
-    xvp0 = Vector(0, 0, -50000)
-    xvp1 = Vector(0, 0,  50000)
-    line = Line(xvp0, xvp1)
+    xvp0 = np.array([0, 0, -50000])
+    xvp1 = np.array([0, 0,  50000])
+    line = DLS(xvp0, xvp1)
 
     
-    xv = Vector(0.1, 0, 0)
+    xv = np.array([1, 0, 0])
     uvv = biot_savart(xv, line)
     print(uvv)

@@ -1,11 +1,11 @@
 import numpy as np
 
-from OpenAEM.line import Line
+from OpenAEM.line import DLS
 from OpenAEM.line_vortex import biot_savart
 from OpenAEM.vector import Vector
 
 class Attached_Eddy:
-    def __init__(self, curves: np.ndarray[Line, 1]):
+    def __init__(self, curves: np.ndarray[DLS, 1]):
         """attached eddy by several curves
         ! It's the user's responsibility to make sure their eddy makes sense !
         Args:
@@ -77,7 +77,7 @@ class Pi_Eddy(Attached_Eddy):
         for i in range(3):
             p0 = pts[i]
             p1 = pts[i+1]
-            curves.append(Line(p0, p1))
+            curves.append(DLS(p0, p1))
         
         self.curves = np.array(curves)
         

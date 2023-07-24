@@ -14,7 +14,7 @@ class Test_Attached_Eddy:
         for i in range(3):
             p0 = pts[i]
             p1 = pts[i+1]
-            curves.append(OpenAEM.Line(p0, p1))
+            curves.append(OpenAEM.DLS(p0, p1))
             
         curves = np.array(curves)
         Pi_eddy = OpenAEM.Attached_Eddy(curves)
