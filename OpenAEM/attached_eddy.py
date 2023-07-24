@@ -1,8 +1,7 @@
 import numpy as np
 
 from OpenAEM.line import DLS
-from OpenAEM.line_vortex import biot_savart
-from OpenAEM.vector import Vector
+from OpenAEM.biot_savart import biot_savart
 
 class Attached_Eddy:
     def __init__(self, curves: np.ndarray[DLS, 1]):
@@ -21,8 +20,8 @@ class Attached_Eddy:
         """        
         mirrors = []
         for curve in self.curves[::-1]:
-            mirror = curve.mirror_line()
-            mirrors.append(mirror.reverse_line()) # count for reversed circulation
+            mirror = curve.mirror()
+            mirrors.append(mirror.reverse()) # count for reversed circulation
             
         return Attached_Eddy(np.array(mirrors))
     
@@ -30,12 +29,12 @@ class Attached_Eddy:
         xm = []; ym = []; zm = []
         um = []; vm = []; wm = []
         for curve in self.curves:
-            pts = curve.get_points()
+            pts = curve.points()
             ax.plot(pts[0, :], pts[1, :], pts[2, :], color=color)
             # mid point index
             im = np.size(pts, axis=1) // 2
             xm.append(pts[0, im]); ym.append(pts[1, im]); zm.append(pts[2, im])
-            dirm = curve.get_direction()
+            dirm = curve.dirs()
             um.append(dirm[0, im]); vm.append(dirm[1, im]); wm.append(dirm[2, im])
             
         ax.quiver(xm, ym, zm, um, vm, wm, length=0.1, color='red')
@@ -58,7 +57,7 @@ class Attached_Eddy:
     
     
 class Pi_Eddy(Attached_Eddy):
-    def __init__(self, a = 1, b = np.sqrt(2), alpha = 45, origin=np.zeros((3, 1))):
+    def __init__(self, a = 1, b = np.sqrt(2), alpha = 45, origin=np.zeros(3)):
         """Pi eddy
 
         Args:
@@ -68,10 +67,10 @@ class Pi_Eddy(Attached_Eddy):
             origin (ndarray, optional): origin of eddy. Defaults to np.zeros((3, 1)).
         """        
         alpha = np.deg2rad(alpha)
-        pts = np.array([Vector(0, -0.5*a, 0),
-                        Vector(b*np.cos(alpha), -0.5*a, b*np.sin(alpha)),
-                        Vector(b*np.cos(alpha),  0.5*a, b*np.sin(alpha)),
-                        Vector(0,  0.5*a, 0)])
+        pts = np.array([[0, -0.5*a, 0],
+                        [b*np.cos(alpha), -0.5*a, b*np.sin(alpha)],
+                        [b*np.cos(alpha),  0.5*a, b*np.sin(alpha)],
+                        [0, 0.5*a, 0]])
         pts += origin
         curves = []
         for i in range(3):

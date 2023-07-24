@@ -1,5 +1,4 @@
 import numpy as np
-from OpenAEM.vector import mirror_Vector
 
 class Line:
     def __init__(self, p0, p1) -> None:
@@ -112,7 +111,7 @@ class DLS(Line):
         self.length = np.linalg.norm(self.p1 - self.p0)
         self.n = int(np.ceil(self.length / ds))
         self.ds = self.length / self.n # actual spacing
-        self.t = 1/self.n*0.5 + np.arange(self.n)*self.ds
+        self.t = 1/self.n*0.5 + np.arange(self.n)/self.n
         
     # public methods
     def points(self):
