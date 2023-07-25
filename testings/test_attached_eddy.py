@@ -18,7 +18,7 @@ class Test_Attached_Eddy:
             
         curves = np.array(curves)
         Pi_eddy = OpenAEM.Attached_Eddy(curves)
-        Pi_eddy_mirror = Pi_eddy.create_mirror()
+        Pi_eddy_mirror = Pi_eddy.mirror()
         
         for i in range(3):
             p0 = Pi_eddy_mirror.curves[i].xv0

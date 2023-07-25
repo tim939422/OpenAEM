@@ -1,4 +1,4 @@
-from .attached_eddy import (Attached_Eddy, Pi_Eddy, Lambda_Eddy)
+from .attached_eddy import (pi_packet)
 from .line import (Line, DLS)
 from .biot_savart import biot_savart
 from .wall_patch import Wall_Patch
