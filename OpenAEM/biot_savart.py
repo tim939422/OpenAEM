@@ -1,8 +1,8 @@
 import numpy as np
 from scipy import integrate
-    
+from OpenAEM.line import DLS
 
-def biot_savart(xv, curve, r0 = 0.1):
+def biot_savart(xv, curve: DLS, r0 = 0.1):
     """apply biot savart law to compute induced velocity
     Compute the following integral
 
@@ -35,6 +35,12 @@ def biot_savart(xv, curve, r0 = 0.1):
     uvv = -0.5*integrate.simpson(np.cross(sv, xpvd, axis=0)/s**3, t)
     return uvv
     
+def biot_savart_eddy(xv, eddy: list[DLS], r0 = 0.1):
+    uvv = np.zeros(3)
+    for curve in eddy:
+        uvv += biot_savart(xv, curve, r0=r0)
+        
+    return uvv
     
 if __name__ == '__main__':
     import OpenAEM
