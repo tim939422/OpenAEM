@@ -31,11 +31,11 @@ class Test_Line:
         
         # test zero distance
         p = np.array((0.2, 0.2, 0.2))
-        assert(line.distance2(p) == approx(0.0, abs=Test_Line.ABS_EPS))
+        assert(line.distance2pt(p) == approx(0.0, abs=Test_Line.ABS_EPS))
         
         # 
         p = np.array([1.0, 1.0, 0.0])
-        smin = line.distance2(p)
+        smin = line.distance2pt(p)
         assert( smin == approx(np.sqrt(2)/np.sqrt(3)))
         
         # horizontal line
@@ -43,7 +43,19 @@ class Test_Line:
         p1 = np.array((1, 0.5, 1))
         line = OpenAEM.Line(p0, p1)
         p = np.array([1, 0, 1])
-        assert(line.distance2(p) == approx(0.0, abs= Test_Line.ABS_EPS))
+        assert(line.distance2pt(p) == approx(0.0, abs= Test_Line.ABS_EPS))
+        
+    def test_distance2pts(self):
+        p0 = np.array([0, 0, 0])
+        p1 = np.array([1, 1, 1])
+        line = OpenAEM.Line(p0, p1)
+        
+        x = np.ones(10)
+        y = np.ones(10)
+        z = np.zeros(10)
+        p = np.vstack((x, y, z))
+        s = line.distance2pts(p)
+        assert(s == approx(np.ones(10)*np.sqrt(2)/np.sqrt(3)))
         
     def test_get_length(self):
         p0 = np.array([0, 0, 0])

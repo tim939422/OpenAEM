@@ -23,7 +23,7 @@ def biot_savart(xv, curve: DLS, r0 = 0.1):
     """
     # if distance <= r0, the line vortex concept is invalid
     # return zero velocity
-    if curve.distance2(xv) <= r0:
+    if curve.distance2pt(xv) <= r0:
         return np.zeros(3)
     
     xpv  = curve.points()

@@ -13,7 +13,7 @@ class Line:
         self.dir = p1 - p0
         
     
-    def distance2(self, p):
+    def distance2pt(self, p):
         """distance from a point p to current line
                 
         Args:
@@ -31,6 +31,10 @@ class Line:
         cross_product = np.cross(p - self.p0, p - self.p1)
         distance = np.linalg.norm(cross_product)/np.linalg.norm(self.dir)
         return distance
+    
+    def distance2pts(self, p):
+        cross_product = np.cross(p - self.p0[:, np.newaxis], p - self.p1[:, np.newaxis], axis=0)
+        return np.linalg.norm(cross_product, axis=0)/np.linalg.norm(self.dir)
     
     @staticmethod
     def intersect(line_1, line_2):
